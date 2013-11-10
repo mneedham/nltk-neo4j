@@ -5,21 +5,21 @@ from nltk import pos_tag, ne_chunk
 
 from py2neo import neo4j
 
-def break_down(query):
-	nltk_tagger = NLTKTagger()
-	blob = TextBlob(query, pos_tagger=nltk_tagger)
-	return blob.pos_tags
+# def break_down(query):
+# 	nltk_tagger = NLTKTagger()
+# 	blob = TextBlob(query, pos_tagger=nltk_tagger)
+# 	return blob.pos_tags
 
-def pos_tagify(query):
-	tokens = nltk.tokenize.word_tokenize(query)
+def pos_tagify(sentence):
+	tokens = nltk.tokenize.word_tokenize(sentence)
 	return nltk.pos_tag(tokens)	
 
-def extract_players(query):
+def extract_players(sentence):
 	grammar = r"""
 		NP: {<NNP>+}
 		"""
 	
-	tree = nltk.RegexpParser(grammar, loop=2).parse(pos_tagify(query))
+	tree = nltk.RegexpParser(grammar, loop=2).parse(pos_tagify(sentence))
 
 	player = []
 	for subtree in tree.subtrees():
@@ -28,8 +28,8 @@ def extract_players(query):
 
 	return [" ".join([word for (word, tag) in p.leaves()]) for p in player]
 
-def cypher_me(query):
-	players = extract_players(query)
+def as_cypher(sentence):
+	players = extract_players(sentence)
 	
 	cypher_query = []
 	cypher_query.append("MATCH (p:Player)-[:played]-(stats)")
@@ -48,8 +48,8 @@ def query(cypher_query):
 
 # cypher_me("goals scored by Gareth Bale")
 
-print query(cypher_me("goals scored by Gareth Bale"))
-print query(cypher_me("goals scored by Gareth Bale or Robin Van Persie"))
+print query(as_cypher("goals scored by Gareth Bale"))
+print query(as_cypher("goals scored by Gareth Bale or Robin Van Persie"))
 
 # Determine whether the pronouns that exist in the data set are players, teams or whatever
 # Determine a type of query e.g. goals scored query
