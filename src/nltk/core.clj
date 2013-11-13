@@ -17,19 +17,13 @@
   (select page [:table#listOfCountriesTable :tr]))
 
 (defn extract-content [cols]
-  {:country (clojure.string/replace (re-find #"[^()]+" (nth cols 0)) #"&nbsp;" "") 
+  {:country (clojure.string/replace
+             (re-find #"[^()]+"
+             (first (select (nth cols 0) [text-node]))) #"&nbsp;" "") 
    :nationality (first (select (nth cols 5) [text-node])) })
 
 (defn extract-columns [row]
   (select row [:td]))
-
-(comment (take 110
-               (->> (fetch-page "en-5000500.htm")
-                    extract-rows
-                    (drop 1)
-                    (map extract-columns)
-                    (remove #(< (count %) 9))
-                    (map #(-> { :all (first (select (nth % 5) [text-node]))})))))
 
 (defn countries-nationalities []
   (->> (fetch-page "en-5000500.htm")

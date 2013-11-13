@@ -30,7 +30,7 @@ def pos_tagify(sentence):
 
 def extract_proper_nouns(sentence):
 	grammar = r"""
-		NP: {<NNP>+}
+		NP: {(<NNP>|<NNPS>)+}
 		"""
 	
 	tree = nltk.RegexpParser(grammar, loop=2).parse(pos_tagify(sentence))
